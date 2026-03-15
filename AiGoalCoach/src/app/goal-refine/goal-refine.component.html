@@ -1,0 +1,55 @@
+<div class="goal-refine-container">
+  <h1>AI Goal Coach</h1>
+  <p>Saved Goals: {{ savedCount }}</p>
+  
+  <div class="input-section">
+    <textarea 
+      [(ngModel)]="goal" 
+      placeholder="e.g., Get fit..." 
+      rows="4"
+      class="goal-input">
+    </textarea>
+    <button class="submit-button" (click)="refineGoal()" [disabled]="loading || !goal.trim()">
+      {{ loading ? 'Refining...' : 'Refine Goal' }}
+    </button>
+  </div>
+
+  <div *ngIf="error && !response" class="error">
+    {{ error }}
+  </div>
+  <div *ngIf="response && response.confidence_score < 5" class="low-confidence-warning">
+    ⚠️ {{ error }} <strong>Still refineable?</strong>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    AI is refining your goal...
+  </div>
+
+  <div *ngIf="response" class="response">
+    <div class="confidence-badge" [class.high]="response.confidence_score >= 8" [class.medium]="response.confidence_score >= 5">
+      Confidence: {{ response.confidence_score }}/10
+    </div>
+    <h2>Refined Goal</h2>
+    <p class="refined-goal">{{ response.refined_goal }}</p>
+    <h3>Key Results</h3>
+    <ul class="key-results">
+      <li *ngFor="let result of response.key_results">{{ result }}</li>
+    </ul>
+
+    <div class="refine-further-section">
+      <h3>Refine Further</h3>
+      <textarea
+        [(ngModel)]="refinement_prompt"
+        placeholder="e.g., I don't have access to a gym. Give me alternatives."
+        rows="3"
+        class="goal-input">
+      </textarea>
+      <button class="submit-button" (click)="refineFurther()" [disabled]="loading || !refinement_prompt.trim()">
+        {{ loading ? 'Refining...' : 'Refine Further' }}
+      </button>
+    </div>
+
+    <button class="save-button" (click)="saveGoal()">💾 Save Goal</button>
+  </div>
+</div>
+

@@ -1,0 +1,52 @@
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AIGoalCoach.API", "AIGoalCoach.API\\AIGoalCoach.API.csproj", "{A37D84D9-2C7F-0ACF-E697-982BB6DB2565}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AIGoalCoach.API.Tests", "AIGoalCoach.API.Tests\\AIGoalCoach.API.Tests.csproj", "{NEW-GUID-HERE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A37D84D9-2C7F-0ACF-E697-982BB6DB2565}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A37D84D9-2C7F-0ACF-E697-982BB6DB2565}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A37D84D9-2C7F-0ACF-E697-982BB6DB2565}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A37D84D9-2C7F-0ACF-E697-982BB6DB2565}.Debug|x64.Build.0 = Debug|Any CPU
+		{A37D84D9-2C7F-0ACF-E697-982BB6DB2565}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A37D84D9-2C7F-0ACF-E697-982BB6DB2565}.Debug|x86.Build.0 = Debug|Any CPU
+		{A37D84D9-2C7F-0ACF-E697-982BB6DB2565}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A37D84D9-2C7F-0ACF-E697-982BB6DB2565}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A37D84D9-2C7F-0ACF-E697-982BB6DB2565}.Release|x64.ActiveCfg = Release|Any CPU
+		{A37D84D9-2C7F-0ACF-E697-982BB6DB2565}.Release|x64.Build.0 = Release|Any CPU
+		{A37D84D9-2C7F-0ACF-E697-982BB6DB2565}.Release|x86.ActiveCfg = Release|Any CPU
+		{A37D84D9-2C7F-0ACF-E697-982BB6DB2565}.Release|x86.Build.0 = Release|Any CPU
+		{NEW-GUID-HERE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{NEW-GUID-HERE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{NEW-GUID-HERE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{NEW-GUID-HERE}.Debug|x64.Build.0 = Debug|Any CPU
+		{NEW-GUID-HERE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{NEW-GUID-HERE}.Debug|x86.Build.0 = Debug|Any CPU
+		{NEW-GUID-HERE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{NEW-GUID-HERE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{NEW-GUID-HERE}.Release|x64.ActiveCfg = Release|Any CPU
+		{NEW-GUID-HERE}.Release|x64.Build.0 = Release|Any CPU
+		{NEW-GUID-HERE}.Release|x86.ActiveCfg = Release|Any CPU
+		{NEW-GUID-HERE}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A46E9827-061E-4F66-BAF5-3E919A736F20}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,87 @@
+.goals-list-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.goals-list-container h1 {
+  text-align: center;
+  color: #1976d2;
+  margin-bottom: 2rem;
+}
+
+.goals-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.goal-card {
+  background: #f8f9ff;
+  border: 1px solid #e3f2fd;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.goal-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.confidence-high {
+  border-left: 5px solid #4caf50;
+}
+
+.confidence-medium {
+  border-left: 5px solid #ff9800;
+}
+
+.goal-card .confidence-badge {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  border-radius: 15px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.goal-card h3 {
+  margin: 0 0 1rem;
+  color: #1976d2;
+  font-size: 1.2rem;
+}
+
+.key-results {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.key-results li {
+  background: white;
+  margin: 0.5rem 0;
+  padding: 0.8rem;
+  border-radius: 6px;
+  border-left: 3px solid #1976d2;
+}
+
+a {
+  color: #1976d2;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .goals-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .goal-card {
+    padding: 1rem;
+  }
+}

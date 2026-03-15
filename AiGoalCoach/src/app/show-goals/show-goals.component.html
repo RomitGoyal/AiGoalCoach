@@ -1,0 +1,13 @@
+<div class="goals-list-container">
+  <h1>Saved Goals</h1>
+  <p *ngIf="goals.length === 0">No saved goals yet. <a routerLink="/refine">Refine a goal</a> first!</p>
+  <div *ngIf="goals.length > 0" class="goals-grid">
+    <div *ngFor="let goal of goals; let i = index" class="goal-card" [class.confidence-high]="goal.confidence_score >= 8" [class.confidence-medium]="goal.confidence_score >= 5">
+      <div class="confidence-badge">{{ goal.confidence_score }}/10</div>
+      <h3>{{ goal.refined_goal }}</h3>
+      <ul class="key-results">
+        <li *ngFor="let result of goal.key_results; let j = index">{{ j + 1 }}. {{ result }}</li>
+      </ul>
+    </div>
+  </div>
+</div>

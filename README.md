@@ -53,9 +53,10 @@ AI Goal Coach is a web application that helps users refine their goals using Art
 The backend is designed to handle a large number of users (10,000+) with high performance and reliability. Here's how:
 
 *   **High Concurrency**: The application can handle thousands of simultaneous requests. It is built on .NET 8, which is designed for high-performance, and can be deployed in a containerized environment like Kubernetes to scale to millions of requests.
-*   **Efficient Memory Usage**: Key services like `ITelemetryService` and `IAiGoalRefiner` are registered as singletons, which means only one instance of these services is created and shared across all requests. This minimizes memory overhead. `HttpClient` is used to create a pool of connections that can be reused for subsequent requests.
+*   **Efficient Memory Usage**: Key services like `ITelemetryService` and `IAiGoalRefiner` are registered as scoped, singletons, which means only one instance of these services is created and shared across all requests. This minimizes memory overhead. `HttpClient` is used to create a pool of connections that can be reused for subsequent requests.
 *   **AI Provider Rate Limiting**: The application is designed to work with AI providers like Gemini, which has a rate limit of 15 requests per minute on the free tier. The application can be configured to handle this rate limit and can be upgraded to a paid tier for higher limits.
 *   **Resiliency**: The application has a fallback mechanism that provides an instant response if the AI provider is down, ensuring a good user experience.
+*   **Caching Frequently Accessed Goals**: Implement in-memory or centralized caching (e.g., IMemoryCache in .NET, Redis) for frequently accessed user goals. This reduces database load by 80-90% on repeated reads, provides sub-10ms response times for cached hits, improves reliability during DB maintenance or outages via cache-aside patterns, and enhances accessibility for users on slow/poor networks by minimizing latency and data transfer.
 *   **Non-Blocking Telemetry**: The telemetry service writes to a file asynchronously, which means it doesn't block the execution of the request and has a minimal impact on performance.
 
 ## Schema Enforcement

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GoalRefineService } from '../services/goal-refine.service';
@@ -10,16 +10,17 @@ import { GoalRefinementResponse } from '../models/goal-refine.models';
   templateUrl: './goal-refine.component.html',
   styleUrls: ['./goal-refine.component.css']
 })
-export class GoalRefineComponent {
+export class GoalRefineComponent implements OnInit {
   goal = '';
   refinement_prompt = '';
   response: GoalRefinementResponse | null = null;
   savedGoals: GoalRefinementResponse[] = [];
   loading = false;
   error: string | null = null;
-  private STORAGE_KEY = 'savedGoals';
 
-  constructor(private goalRefineService: GoalRefineService) {
+  constructor(private goalRefineService: GoalRefineService) {}
+
+  ngOnInit() {
     this.loadSavedGoals();
   }
 
@@ -31,15 +32,15 @@ export class GoalRefineComponent {
     this.response = null;
 
     this.goalRefineService.refineGoal(this.goal.trim()).subscribe({
-      next: (resp: HttpResponse<any>) => {
-        const body = resp.body;
+      next: (resp: HttpResponse<GoalRefinementResponse>) => {
+        const body = resp.body!;
         if (resp.status === 200 && body) {
           // Handle low confidence
-          if ('confidence_score' in body && body.confidence_score < 5) {
-            this.response = body as GoalRefinementResponse;
+          if (body.confidence_score < 5) {
+            this.response = body;
             this.error = `Low confidence (${body.confidence_score}/10). Make it SMART: Specific, who/what/when?`;
           } else {
-            this.response = body as GoalRefinementResponse;
+            this.response = body;
             this.error = null;
           }
         } else {
@@ -48,7 +49,7 @@ export class GoalRefineComponent {
         this.loading = false;
       },
       error: (err) => {
-        this.error = err.status === 0 ? 'Connection failed. Check if backend runs on localhost:5000.' : `Request failed: ${err.message}`;
+        this.error = err.status === 0 ? 'Connection failed. Check if backend runs on localhost:5010.' : `Request failed: ${err.message}`;
         this.loading = false;
         console.error(err);
       }
@@ -66,22 +67,31 @@ export class GoalRefineComponent {
   saveGoal() {
     if (!this.response) return;
 
-    this.savedGoals.unshift(this.response);
-    sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.savedGoals));
-    alert('Goal saved! Total saved: ' + this.savedGoals.length);
-    this.response = null;
-    this.goal = '';
+    this.goalRefineService.saveGoal(this.response).subscribe({
+      next: () => {
+        alert('Goal saved!');
+        this.response = null;
+        this.goal = '';
+        this.loadSavedGoals();
+      },
+      error: (err) => {
+        this.error = `Save failed: ${err.message}`;
+        console.error(err);
+      }
+    });
   }
 
-  private loadSavedGoals() {
-    const saved = sessionStorage.getItem(this.STORAGE_KEY);
-    if (saved) {
-      this.savedGoals = JSON.parse(saved);
-    }
+  loadSavedGoals() {
+    this.goalRefineService.getGoals().subscribe({
+      next: (goals) => this.savedGoals = goals,
+      error: (err) => {
+        console.error('Load saved goals failed:', err);
+        this.savedGoals = [];
+      }
+    });
   }
 
   get savedCount() {
     return this.savedGoals.length;
   }
 }
-

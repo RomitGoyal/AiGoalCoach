@@ -1,6 +1,7 @@
 using AIGoalCoach.API.Models;
-using AIGoalCoach.API;
+using AIGoalCoach.API.Data;
 using AIGoalCoach.API.Services;
+using Microsoft.EntityFrameworkCore;
 
 public class Program
 {
@@ -10,7 +11,11 @@ public class Program
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddCors(builder => builder.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
-        builder.Services.AddSingleton<ITelemetryService, TelemetryService>(sp => new TelemetryService(builder.Configuration));
+        builder.Services.AddDbContext<AppDbContext>(options =>
+            options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection")!, 
+                new MySqlServerVersion(new Version(8, 0, 36))));
+
+        builder.Services.AddScoped<ITelemetryService, TelemetryService>();
 
         builder.WebHost.UseUrls("http://localhost:5010");
 
@@ -30,6 +35,20 @@ public class Program
 
         app.UseCors();
 
+        // Goals API endpoints
+        app.MapPost("/api/goals", async (Goal goal, AppDbContext db) =>
+        {
+            db.Goals.Add(goal);
+            await db.SaveChangesAsync();
+            return Results.Created($"/api/goals/{goal.Id}", goal);
+        });
+
+        app.MapGet("/api/goals", async (AppDbContext db) =>
+        {
+            var goals = await db.Goals.OrderByDescending(g => g.CreatedDate).Take(50).ToListAsync();
+            return Results.Ok(goals);
+        });
+
         app.MapPost("/api/goal/refine", async (GoalRefinementRequest request, IAiGoalRefiner refiner, ITelemetryService telemetry) =>
         {
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
@@ -39,9 +58,9 @@ public class Program
             Console.WriteLine($"\n=== TELEMETRY INPUT ===");
             Console.WriteLine($"Goal: '{goal}'");
 
-            if (!GoalRefinementHandler.IsValidInput(goal))
+            if (!AIGoalCoach.API.GoalRefinementHandler.IsValidInput(goal))
             {
-                var telEventBlocked = new TelemetryEvent
+                var telEventBlocked = new AIGoalCoach.API.Models.TelemetryEvent
                 {
                     InputGoal = goal,
                     LatencyMs = stopwatch.ElapsedMilliseconds,
@@ -70,7 +89,7 @@ public class Program
                     Console.WriteLine("WARNING: Low confidence or sensitive topic");
                 }
 
-                var telEventError = new TelemetryEvent
+                var telEventSuccess = new AIGoalCoach.API.Models.TelemetryEvent
                 {
                     InputGoal = goal,
                     LatencyMs = stopwatch.ElapsedMilliseconds,
@@ -82,13 +101,13 @@ public class Program
                     Error = null,
                     ConfidenceScore = result.ConfidenceScore
                 };
-                await telemetry.LogAiCallAsync(telEventError);
+                await telemetry.LogAiCallAsync(telEventSuccess);
 
                 return Results.Ok(result);
             }
             catch (Exception ex)
             {
-                var telEventError = new TelemetryEvent
+                var telEventError = new AIGoalCoach.API.Models.TelemetryEvent
                 {
                     InputGoal = goal,
                     LatencyMs = stopwatch.ElapsedMilliseconds,

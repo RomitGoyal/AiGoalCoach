@@ -8,13 +8,20 @@ import { GoalRefinementRequest, GoalRefinementResponse } from '../models/goal-re
   providedIn: 'root'
 })
 export class GoalRefineService {
-  private apiUrl = 'http://localhost:5010/api/goal/refine';  // Backend endpoint (avoid AirPlay port 5000)
+  private readonly baseUrl = 'http://localhost:5010/api';
 
   constructor(private http: HttpClient) { }
 
-  refineGoal(goal: string): Observable<HttpResponse<any>> {
+  refineGoal(goal: string): Observable<HttpResponse<GoalRefinementResponse>> {
     const request: GoalRefinementRequest = { goal };
-    return this.http.post<any>(this.apiUrl, request, { observe: 'response' });
+    return this.http.post<GoalRefinementResponse>(`${this.baseUrl}/goal/refine`, request, { observe: 'response' });
+  }
+
+  saveGoal(goal: GoalRefinementResponse): Observable<GoalRefinementResponse> {
+    return this.http.post<GoalRefinementResponse>(`${this.baseUrl}/goals`, goal);
+  }
+
+  getGoals(): Observable<GoalRefinementResponse[]> {
+    return this.http.get<GoalRefinementResponse[]>(`${this.baseUrl}/goals`);
   }
 }
-

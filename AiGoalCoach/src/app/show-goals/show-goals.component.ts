@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { GoalRefineService } from '../services/goal-refine.service';
 import { GoalRefinementResponse } from '../models/goal-refine.models';
 import { Router } from '@angular/router';
 
@@ -9,19 +10,26 @@ import { Router } from '@angular/router';
 })
 export class ShowGoalsComponent implements OnInit {
   goals: GoalRefinementResponse[] = [];
-  private STORAGE_KEY = 'savedGoals';
+  loading = false;
 
-  constructor(private router: Router) {}
+  constructor(private goalRefineService: GoalRefineService, private router: Router) {}
 
   ngOnInit() {
     this.loadGoals();
   }
 
-  private loadGoals() {
-    const saved = sessionStorage.getItem(this.STORAGE_KEY);
-    if (saved) {
-      this.goals = JSON.parse(saved);
-    }
+  loadGoals() {
+    this.loading = true;
+    this.goalRefineService.getGoals().subscribe({
+      next: (goals) => {
+        this.goals = goals;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Failed to load goals:', err);
+        this.goals = [];
+        this.loading = false;
+      }
+    });
   }
 }
-

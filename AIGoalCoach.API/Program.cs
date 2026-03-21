@@ -8,34 +8,41 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        builder.WebHost.UseUrls("http://localhost:5010");
 
         builder.Services.AddEndpointsApiExplorer();
+        
+        //CORS configuration - allow all for development, consider restricting in production
         builder.Services.AddCors(builder => builder.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+        
+        //DB Context configuration - using MySQL with connection string from appsettings.json
         builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection")!, 
                 new MySqlServerVersion(new Version(8, 0, 36))));
 
-        builder.Services.AddScoped<ITelemetryService, TelemetryService>();
-
-        builder.WebHost.UseUrls("http://localhost:5010");
-
         var config = builder.Configuration;
         var aiProvider = config["Ai:Provider"] ?? "gemini";
         var apiKey = config["Ai:ApiKey"] ?? config["Gemini:ApiKey"] ?? throw new InvalidOperationException("AI ApiKey missing");
+        
+        //Singleton service for AI Goal Refiner, implementation chosen based on configuration (OpenAI or Gemini)
         builder.Services.AddSingleton<IAiGoalRefiner>(sp =>
         {
             return aiProvider.ToLowerInvariant() switch
             {
+                //factory pattern to choose AI provider implementation based on config, defaults to Gemini if not specified or unrecognized
                 "openai" => new OpenAiGoalRefiner(apiKey, config["Ai:Model"] ?? "gpt-4o-mini"),
                 "gemini" or _ => new GeminiGoalRefiner(apiKey)
             };
         });
 
+        //scoped service for telemetry, can be injected into endpoints to log AI call details
+        builder.Services.AddScoped<ITelemetryService, TelemetryService>();
+
         var app = builder.Build();
 
         app.UseCors();
 
-        // Goals API endpoints
+        // endpoint to create a new goal, accepts Goal object in request body, saves to database and returns created goal with 201 status
         app.MapPost("/api/goals", async (Goal goal, AppDbContext db) =>
         {
             db.Goals.Add(goal);
@@ -43,12 +50,14 @@ public class Program
             return Results.Created($"/api/goals/{goal.Id}", goal);
         });
 
+        //endpoint to retrieve recent goals, returns list of goals ordered by creation date, limited to 50 most recent
         app.MapGet("/api/goals", async (AppDbContext db) =>
         {
             var goals = await db.Goals.OrderByDescending(g => g.CreatedDate).Take(50).ToListAsync();
             return Results.Ok(goals);
         });
 
+        //endpoint to refine a goal using AI, accepts GoalRefinementRequest with a goal string, validates input, calls AI refiner service, logs telemetry, and returns refined goal or error message
         app.MapPost("/api/goal/refine", async (GoalRefinementRequest request, IAiGoalRefiner refiner, ITelemetryService telemetry) =>
         {
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
